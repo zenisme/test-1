@@ -54,23 +54,25 @@ export class LeaveController {
                 return
             }
 
-            const leaveApplication = await this.leaveApplicationService.findById(Number(req.params.id))
-            if (!leaveApplication) {
-                res.status(200).json(baseResponse(null, 'Leave application not found', 404))
-                return
-            }
-            const leaveBalance = await this.leaveBalanceService.findByEmployeeId(leaveApplication.employeeId, dayjs(leaveApplication.startDate).year(), leaveApplication.leaveTypeId)
-            if (!leaveBalance) {
-                res.status(200).json(baseResponse(null, 'Leave balance is not found', 404))
-                return
-            }
-            const diff = dayjs(leaveApplication.endDate).diff(dayjs(leaveApplication.startDate), 'hours') / 24
+            if (req.body.status === LeaveApplicationStatus.APPROVED) {
+                const leaveApplication = await this.leaveApplicationService.findById(Number(req.params.id))
+                if (!leaveApplication) {
+                    res.status(200).json(baseResponse(null, 'Leave application not found', 404))
+                    return
+                }
+                const leaveBalance = await this.leaveBalanceService.findByEmployeeId(leaveApplication.employeeId, dayjs(leaveApplication.startDate).year(), leaveApplication.leaveTypeId)
+                if (!leaveBalance) {
+                    res.status(200).json(baseResponse(null, 'Leave balance is not found', 404))
+                    return
+                }
+                const diff = dayjs(leaveApplication.endDate).diff(dayjs(leaveApplication.startDate), 'hours') / 24
 
-            if (leaveBalance.totalRemaining < diff) {
-                res.status(200).json(baseResponse(null, 'Leave balance is not enough', 400))
-                return
+                if (leaveBalance.totalRemaining < diff) {
+                    res.status(200).json(baseResponse(null, 'Leave balance is not enough', 400))
+                    return
+                }
+                await this.leaveBalanceService.updateLeaveBalance(leaveBalance.id, diff)
             }
-            await this.leaveBalanceService.updateLeaveBalance(leaveBalance.id, diff)
 
             const employee = await this.employeeService.findByUserId(req.body.user.id)
             const updatedLeaveApplication = await this.leaveApplicationService.updateLeave(Number(req.params.id), { status: req.body.status as LeaveApplicationStatus, approvedById: employee?.id })
