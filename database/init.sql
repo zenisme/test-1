@@ -134,7 +134,7 @@ CREATE TABLE "public"."LeaveBalance" (
 -- Records of LeaveBalance
 -- ----------------------------
 INSERT INTO "public"."LeaveBalance" VALUES (2, 1, 2, 2025, 10, 0, 10);
-INSERT INTO "public"."LeaveBalance" VALUES (1, 1, 1, 2025, 10, 9, 1);
+INSERT INTO "public"."LeaveBalance" VALUES (1, 1, 1, 2025, 10, 0, 10);
 
 -- ----------------------------
 -- Table structure for LeaveType
